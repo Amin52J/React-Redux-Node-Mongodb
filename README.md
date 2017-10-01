@@ -17,6 +17,14 @@ Setting up a new project can always be challenging and time consuming.
 * Mongodb
 * npm
 
+### How to use?
+
+1. Simply clone or download the project.
+2. Remove the .git directory (if applicable)
+3. Change the information in the package.json file
+4. Change the content in the secret.js and config.js files (optional but recommended)
+5. Start developing your awesome project
+
 ### Installment
 
 1. run `npm install`
