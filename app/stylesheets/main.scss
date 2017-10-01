@@ -1,0 +1,10 @@
+@import "common";
+@import "theme";
+
+html {
+  body {
+    overflow-x: hidden;
+
+    @import "../components/Test/test";
+  }
+}
