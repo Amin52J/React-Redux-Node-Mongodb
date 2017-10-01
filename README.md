@@ -1,1 +1,0 @@
-# React-Redux-Node-Mongodb
