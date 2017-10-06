@@ -1,118 +1,60 @@
 require('babel-core/register');
 
-let React = require('react');
-let ReactDOM = require('react-dom/server');
-let Router = require('react-router');
-let path = require('path');
-let fs = require('fs');
-let Mustache = require('mustache');
+const path = require('path');
+const express = require('express');
+const logger = require('morgan');
+const bodyParser = require('body-parser');
+const helmet = require('helmet');
+const reload = require('reload');
+const cookieParser = require('cookie-parser');
 
-let mongoose = require('mongoose');
-let express = require('express');
-let session = require('express-session');
-let logger = require('morgan');
-let bodyParser = require('body-parser');
-let helmet = require('helmet');
-let MongoStore = require('connect-mongo')(session);
-let RateLimit = require('express-rate-limit');
-let sanitize = require('mongo-sanitize');
-let reload = require('reload');
+const config = require('../config');
+const secret = require('../secret');
+const utils = require('./common/utils');
+const serverConfig = require('./config');
 
-let routes = require('../app/routes');
-let Resources = require('../app/constants/resources').default;
-let config = require('../config');
-let secret = require('../secret');
-let utils = require('./common/utils');
+const database = require('./bootstrap/database');
+const requestLimit = require('./bootstrap/requestLimit');
+const secureSession = require('./bootstrap/secureSession');
+const sanitizeInput = require('./bootstrap/sanitizeInput');
+const routing = require('./bootstrap/routing');
+const launch = require('./bootstrap/launch');
+const api = require('./api');
 
-let cookieParser = require('cookie-parser');
-let reactCookie = require('react-cookie');
-let api = {
-  root: require('./api/root')
-};
+//bootstrap database
+const db = database();
 
-mongoose.connect(config.database);
-mongoose.connection.on('error', function () {
-  console.info(Resources.errors.mongod);
-});
+const app = express();
 
-let app = express();
-
-app.set('port', process.env.PORT || 3000);
-
+app.set('port', process.env.PORT || serverConfig.port);
 app.set('superSecret', secret.superSecret);
 
-let apiRoutes = express.Router();
-
 //limit the number of request
-app.use('/api', new RateLimit({
-  windowMs: secret.limit.api.windowMs,
-  max: secret.limit.api.max,
-  delayMs: 0
-}));
+requestLimit(app);
 
 //secure session and cookies
-app.use(session({
-    secret: secret.session.secret,
-    name: secret.session.name,
-    saveUninitialized: false, //don't start a session before anything is changed
-    httpOnly: true, //only allow http[s] requests to access sessions
-    resave: false, //don't save any session unless something is changed
-    store: new MongoStore({ //where to save the sessions
-      mongooseConnection: mongoose.connection, //database connection
-      ttl: secret.session.ttl,
-      touchAfter: secret.session.touchAfter
-    })
-  }
-));
+secureSession(app, db);
 
 //sanitize input
-app.use(function (req, res, next) {
-  req.body = sanitize(req.body);
-  req.query = sanitize(req.query);
-  req.params = sanitize(req.params);
-  next();
-});
+sanitizeInput(app);
 
-//to secure HTTP Headers
+//secure HTTP Headers
 app.use(helmet());
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname.replace('/server', ''), 'public')));
+app.use(express.static(path.join(__dirname.replace(serverConfig.serverRoute, ''), serverConfig.publicRoute)));
 
-app.use('/api', apiRoutes);
+const apiRoutes = express.Router();
+app.use(serverConfig.apiRoute, apiRoutes);
 
-//------------------------------API-------------------------------------
-/**
- * Test
- */
-app.post(Resources.api.test, (req,res)=>{
-  api.root.post.test(req,res,app.get('superSecret'));
-});
-//------------------------------End of API-------------------------------------
+//initialize the api
+api(app);
 
-app.use(function (req, res) {
-  Router.match({routes: routes.default, location: req.url}, function (err, redirectLocation, renderProps) {
-    reactCookie.plugToRequest(req, res);
-    if (err) {
-      res.status(500).send(err.message)
-    } else if (redirectLocation) {
-      res.status(302).redirect(redirectLocation.pathname + redirectLocation.search)
-    } else if (renderProps) {
-      let html = ReactDOM.renderToString(React.createElement(Router.RouterContext, renderProps));
-      fs.readFile('views/index.html', function (err, data) {
-        if (err) throw err;
-        var page = Mustache.render(data.toString(), {html: html});
-        res.status(200).send(page);
-      });
-    } else {
-      res.status(404).send('Page Not Found')
-    }
-  });
-});
+//setup routing
+routing(app);
 
-app.listen(app.get('port'), function () {
-  console.log('Express server listening on port ' + app.get('port'));
-});
+//launch the server
+launch(app);
