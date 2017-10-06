@@ -1,9 +1,9 @@
 import * as types from '../constants/ActionTypes';
-import axios from 'axios';
+import Resources from '../constants/resources';
 
 export function test(link) {
   return dispatch => {
-    axios
+    Resources.request
       .get(link)
       .then(response => {
         dispatch(dispatchTest(response));

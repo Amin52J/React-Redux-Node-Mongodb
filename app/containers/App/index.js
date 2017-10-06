@@ -3,9 +3,11 @@ import {combineReducers, createStore, applyMiddleware} from 'redux';
 import {Provider} from 'react-redux';
 import thunk from 'redux-thunk';
 import * as reducers from '../../reducers';
+import HOCReducer from '../../reducers/HOCReducer';
 require('isomorphic-fetch');
 
-const reducer = combineReducers(reducers);
+const combinedReducers = combineReducers(reducers);
+const reducer = HOCReducer(combinedReducers);
 const store = createStore(reducer, applyMiddleware(thunk));
 
 export default class App extends React.Component {

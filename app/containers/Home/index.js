@@ -1,7 +1,7 @@
 import React from 'react';
-import {connect} from 'react-redux';
-import {test} from '../../actions/HomePage';
+import * as actions from '../../actions/HomePage';
 import {Test} from '../../components';
+import {ContainerEnhancer} from '../../HOC';
 
 class Home extends React.Component {
   render() {
@@ -16,10 +16,4 @@ class Home extends React.Component {
   }
 }
 
-function mapStateToProps(state) {
-  return state;
-}
-
-export default connect(mapStateToProps, {
-  test
-})(Home);
+export default ContainerEnhancer(Home, actions);

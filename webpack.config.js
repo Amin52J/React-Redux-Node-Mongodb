@@ -2,7 +2,7 @@ const path = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const webpack = require('webpack');
-const LiveReloadPlugin = require('webpack-livereload-plugin');
+
 
 var plugins = [
   new CopyWebpackPlugin([{from: 'view'}]),
@@ -19,9 +19,6 @@ var plugins = [
 
 if (process.env.NODE_ENV === 'production') {
   plugins.push(new webpack.optimize.UglifyJsPlugin());
-}
-else{
-  plugins.push(new LiveReloadPlugin());
 }
 
 module.exports = {

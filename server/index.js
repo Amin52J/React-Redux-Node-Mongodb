@@ -88,7 +88,9 @@ app.use('/api', apiRoutes);
 /**
  * Test
  */
-app.post('/api/test', api.root.post.test);
+app.post(Resources.api.test, (req,res)=>{
+  api.root.post.test(req,res,app.get('superSecret'));
+});
 //------------------------------End of API-------------------------------------
 
 app.use(function (req, res) {

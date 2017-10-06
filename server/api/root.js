@@ -2,7 +2,7 @@ let Test = require('../../models/test');
 
 module.exports = {
   post: {
-    test(req, res, next) {
+    test(req, res, secret) {
 
     }
   },

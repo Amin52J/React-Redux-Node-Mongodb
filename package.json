@@ -1,5 +1,5 @@
 {
-  "name": "React-Redux-Node-Mongodb",
+  "name": "react-redux-node-mongodb",
   "version": "2.0.0",
   "scripts": {
     "start": "nodemon ./server/index.js",
@@ -71,8 +71,7 @@
     "url-loader": "^0.5.9",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
-    "webpack": "^3.5.5",
-    "webpack-livereload-plugin": "^1.0.0"
+    "webpack": "^3.5.5"
   },
   "license": "MIT",
   "author": "Amin Jafari"
