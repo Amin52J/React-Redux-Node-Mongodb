@@ -34,7 +34,7 @@
     "helmet": "^3.4.0",
     "jsonwebtoken": "^7.3.0",
     "mongo-sanitize": "^1.0.0",
-    "mongoose": "^4.2.5",
+    "mongoose": "^5.7.7",
     "morgan": "^1.6.1",
     "mustache": "^2.3.0",
     "path": "^0.12.7",
